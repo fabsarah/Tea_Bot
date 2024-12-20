@@ -18,3 +18,4 @@ This bot takes day and time parameters and recommends a tea based on past tea-dr
 These have been hard-coded in based on what I drink most commonly, so take some time and play with it!
 
 Happy steeping!
+<img width="690" alt="Screenshot 2024-12-20 at 10 31 46 AM" src="https://github.com/user-attachments/assets/27b26eaa-5bb2-4730-8961-375aed6a56c9" />
