@@ -1,0 +1,143 @@
+function tea = Tea_Bot(tea)
+%The Tea Bot is a charming AI that recommends tea based on your prior
+%preferences. Tea Bot requires a matrix of values (tea) that includes columns
+%for the day, time, and, types of tea. The test matrix is as follows:
+
+ % Column 1 = Counter (keeps track of trial number)
+    % 2 = Day (1:7 with 1 corresponding to Monday)
+    % 3 = Time. Here, 1:3 correspond to morning, afternoon, and evening
+    % What tea you have! I've coded my columns as follows:
+    % 4 = Yorkshire Tea 
+    % 5 = Yunnan Gold
+    % 6 = Assam
+    % 7 = Ruby Tea
+    % 8 = Decaf Breakfast
+    % 9 = Ginger
+    % 10 = An option to refuse tea 
+    
+   %NB: these varieties were hard-coded based on the training data, but
+   %could be user-defined in the function, creating a new column for each
+   %new tea.
+    
+%Tea Bot will ask for the day, the time, and will make a suggestion based
+%on your most common prior preference. You will then have the option to
+%accept the suggestion, or select an alternative. Tea Bot will update its
+%data based on these interactions.
+
+%To begin:
+
+%Add a new row for the current trial
+rowToInsert = size(tea,1)+1;
+rowVectorToInsert = [(size(tea,1)+1), zeros(1,size(tea,2)-1)];
+%rowVectorToInsert = [(size(tea,1)+1), 0, 0, 0, 0, 0, 0, 0,0];
+tea = [tea(1:rowToInsert-1,:); rowVectorToInsert; tea(rowToInsert:end,:)];
+
+%Question the first. Takes user input and copies it to the dataset column
+%for date
+Day = input('What day is it? \n','s');
+Day = double(Day); %converts character array to vector. Assumes days are capatalized
+if Day(1) == 77 %Monday
+    tea(size(tea,1),2)=1;
+elseif Day(1)==84 && Day(2)==117 %Tuesday
+    tea(size(tea,1),2)=2;
+elseif Day(1)==87 %Wednesday
+    tea(size(tea,1),2)=3;
+elseif Day(1)==84 && Day(2)==104 %Thursday
+    tea(size(tea,1),2)=4;
+elseif Day(1)==70 %Friday
+    tea(size(tea,1),2)=5;
+elseif Day(1)==83 && Day(2)==97 %Saturday
+    tea(size(tea,1),2)=6;
+elseif Day(1)==83 && Day(2)==117 %Sunday
+    tea(size(tea,1),2)=7;
+end
+
+Day = tea(size(tea,1),2); %Updates the data matrix with the current date
+
+%Question the second. Takes user input and copies it to the dataset column
+%for time
+Time = input('Is it morning, afternoon, or evening? \n','s');
+Time = double(Time); %Converts character to vector
+if Time(1)== 77 || Time(1)== 109 %morning
+    tea(size(tea,1),3)=1;
+elseif Time(1)==65 || Time(1)==97 %afternoon
+    tea(size(tea,1),3)=2;
+elseif Time(1)==69 || Time(1)==101 %evening
+    tea(size(tea,1),3)=3;
+end
+Time = tea(size(tea,1),3); %updates the matrix with the current time value
+
+%Select the relevant rows based on date
+X = tea(tea(:,2)== Day,:); %indexing the matrix by day
+X = X(:,2:end); %subsetting the relevant columns
+
+%Select relevant rows based on time
+X = X(X(:,2)==Time,:);%indexing the remaining values by time
+
+%replace the new row with zeroes to prevent any NaN errors
+%X(size(X,1),1:end) = [0,0,0,0,0,0,0,0];
+
+X(size(X,1),1:end) = 0;
+
+%calculate the probabilities
+for i = 3:length(X) %looping through the relevant columns
+    X(size(X,1),i)= sum(X(1:(size(X,1))-1,i))/(size(X,1)-1);%probabilty for each
+end
+%find the largest probability
+[~, col] = find(ismember(X(end,:), max(X(end,:))));
+if length(col)>1
+    col = randsample(col,1);%if there's a tie, select randomly
+elseif isnan(sum(col))
+    col = randi([3,size(tea,2)]);% if there's an error, select randomly
+else
+    col = col;
+end
+
+if col<3 
+    col = randi([3,size(tea,2)]);% there's no data, select randomly
+end
+%Ask the user if they accept the recommendation
+if col ==3
+    Choice = input('Would you like some Yorkshire tea? \n','s');
+elseif col==4
+    Choice = input('Would you like some Yunnan Gold? \n','s');
+elseif col==5
+    Choice = input('Would you like some Assam? \n','s');
+elseif col==6
+    Choice = input('Would you like some Ruby tea? \n','s');
+elseif col==7
+    Choice = input('Would you like some Decaf Breakfast tea? \n','s');
+elseif col==8
+    Choice = input('Would you like some Ginger tea? \n','s');
+elseif col==9
+    Choice = input('Is it too late for tea? \n','s');
+end
+
+Choice = double(Choice);%converting yes/no to vectors
+%User responds and the data updates
+if Choice(1)==89 || Choice(1)==121%yes/no can be either upper or lowercase
+    tea(size(tea,1),(col+1)) = 1;
+elseif Choice(1)==78 || Choice(1)==110
+     Alternative = input('What would you like instead? \n','s');%user can specify another tye of tea
+     Alternative = double(Alternative);%converting answer into vector
+     if Alternative(1)==89 && Alternative(2)==111%Yorkshire tea
+         tea(size(tea,1),4) = 1;%updating the dataset with the choice
+     elseif Alternative(1)==89 && Alternative(2)==117 %Yunnan Gold
+         tea(size(tea,1),5) = 1;
+    elseif Alternative(1)==65 && Alternative(2)==115 %Assam 
+         tea(size(tea,1),6) = 1;
+    elseif Alternative(1)==82 % Ruby 
+         tea(size(tea,1),7) = 1;
+     elseif Alternative(1)==68 %Decaf
+         tea(size(tea,1),8) = 1;
+    elseif Alternative(1)==71 %Ginger
+         tea(size(tea,1),9) = 1;
+    elseif Alternative(1)==78||Alternative(2)==110 %No tea
+         tea(size(tea,1),10) = 1;
+     end
+end
+% This will update the tea matrix with your choice. Don't forget to save it!
+
+fprintf('Splendid! \n','s') %Acknowledge the decision has been received
+
+% And there you have it! Happy steeping
