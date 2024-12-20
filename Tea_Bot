@@ -117,7 +117,13 @@ Choice = double(Choice);%converting yes/no to vectors
 %User responds and the data updates
 if Choice(1)==89 || Choice(1)==121%yes/no can be either upper or lowercase
     tea(size(tea,1),(col+1)) = 1;
-elseif Choice(1)==78 || Choice(1)==110
+elseif Choice(1)==78 || Choice(1)==110 % if no, you can type what you want instead
+
+% When specifying what tea you want instead, this assumes you're capitalizing the first letter. 
+% To update the types of tea to what you drink, you'll need new numbers corresponding to the new names. 
+% To get this, double('The name in single quotes') will give you the letters translated to numbers, 
+% and you can replace the indices below:
+
      Alternative = input('What would you like instead? \n','s');%user can specify another tye of tea
      Alternative = double(Alternative);%converting answer into vector
      if Alternative(1)==89 && Alternative(2)==111%Yorkshire tea
